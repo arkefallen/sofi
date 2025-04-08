@@ -1,4 +1,4 @@
-package com.example.sofi
+package id.arkefallen.sofi
 
 import io.flutter.embedding.android.FlutterActivity
 
