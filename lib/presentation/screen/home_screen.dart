@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sofi/presentation/provider/list_story_provider.dart';
+import 'package:sofi/presentation/state/list_story_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -10,6 +13,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      // ignore: use_build_context_synchronously
+      context.read<ListStoryProvider>().fetchListStories();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,38 +39,75 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: List.generate(5, (_) => const StoryItem())
-                .map((e) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: e,
-                    ))
-                .toList(),
-          ),
-        ),
+            padding: const EdgeInsets.all(16.0),
+            child: Consumer<ListStoryProvider>(
+              builder: (context, value, child) {
+                if (value.state is ListStoryLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (value.state is ListStoryError) {
+                  return Center(
+                    child: Text(
+                      (value.state as ListStoryError).message,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.red,
+                          ),
+                    ),
+                  );
+                } else if (value.state is ListStorySuccess) {
+                  final stories = (value.state as ListStorySuccess).stories;
+                  return Column(
+                    children: stories
+                        .map((story) => Padding(
+                              padding: const EdgeInsets.only(bottom: 24.0),
+                              child: StoryItem(
+                                imageUrl: story.photoUrl,
+                                username: story.name,
+                                storyText: story.description,
+                              ),
+                            ))
+                        .toList(),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            )),
       ),
     );
   }
 }
 
 class StoryItem extends StatelessWidget {
+  final String? imageUrl;
+  final String? username;
+  final String? storyText;
   const StoryItem({
     super.key,
+    this.imageUrl,
+    this.username,
+    this.storyText,
   });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        SizedBox(
+        Container(
           height: 400,
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 6),
+              ),
+            ],
+            borderRadius: BorderRadius.circular(20),
+          ),
           width: MediaQuery.of(context).size.width,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Image.network(
-              "https://images.dog.ceo/breeds/affenpinscher/n02110627_4607.jpg",
+              imageUrl.toString(),
               fit: BoxFit.cover,
             ),
           ),
@@ -70,7 +119,7 @@ class StoryItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
               colors: [
-                Colors.black.withOpacity(0.8),
+                Theme.of(context).colorScheme.primary.withOpacity(0.8),
                 Colors.transparent,
                 Colors.transparent,
                 Colors.transparent,
@@ -86,13 +135,11 @@ class StoryItem extends StatelessWidget {
           child: SizedBox(
             width: MediaQuery.of(context).size.width - 64,
             child: Text(
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+              storyText.toString(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white,
                     fontSize: 20,
                   ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
@@ -102,15 +149,22 @@ class StoryItem extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: [
                 const Icon(Icons.person, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
-                  "Username",
+                  username.toString(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white,
                         fontSize: 16,

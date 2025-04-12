@@ -1,22 +1,22 @@
 import 'dart:convert';
 
 class StoryModel {
-    final String id;
-    final String name;
-    final String description;
-    final String photoUrl;
-    final DateTime createdAt;
-    final double lat;
-    final double lon;
+    String? id;
+    String? name;
+    String? description;
+    String? photoUrl;
+    DateTime? createdAt;
+    double? lat;
+    double? lon;
 
     StoryModel({
-        required this.id,
-        required this.name,
-        required this.description,
-        required this.photoUrl,
-        required this.createdAt,
-        required this.lat,
-        required this.lon,
+        this.id,
+        this.name,
+        this.description,
+        this.photoUrl,
+        this.createdAt,
+        this.lat,
+        this.lon,
     });
 
     factory StoryModel.fromRawJson(String str) => StoryModel.fromJson(json.decode(str));

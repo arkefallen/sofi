@@ -7,6 +7,7 @@ import 'package:sofi/data/datasource/story_service.dart';
 import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/provider/login_provider.dart';
 import 'package:sofi/presentation/provider/register_provider.dart';
+import 'package:sofi/presentation/screen/home_screen.dart';
 import 'package:sofi/presentation/screen/login_screen.dart';
 
 void main() {
@@ -45,10 +46,20 @@ class SofiApp extends StatelessWidget {
     final brightness = View.of(context).platformDispatcher.platformBrightness;
     TextTheme textTheme = createTextTheme(context, "Sofia Sans", "Sofia Sans");
     SofiTheme theme = SofiTheme(textTheme);
-    return MaterialApp(
-      title: 'Sofi',
-      theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-      home: const LoginScreen(),
+
+    return Consumer<SharedPreferenceService>(
+      builder: (context, sharedPreferenceService, child) {
+        final token = sharedPreferenceService.getToken();
+        final initialScreen = (token != null && token.toString().isNotEmpty)
+            ? const HomeScreen(title: "Sofi")
+            : const LoginScreen();
+
+        return MaterialApp(
+          title: 'Sofi',
+          theme: brightness == Brightness.light ? theme.light() : theme.dark(),
+          home: initialScreen,
+        );
+      },
     );
   }
 }
