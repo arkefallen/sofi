@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sofi/presentation/provider/login_provider.dart';
 import 'package:sofi/presentation/screen/home_screen.dart';
 import 'package:sofi/presentation/screen/register_screen.dart';
+import 'package:sofi/presentation/state/login_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +13,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool isObscure = true;
   @override
   Widget build(BuildContext context) {
     final String? message =
@@ -52,41 +58,67 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
               ),
               const SizedBox(height: 24),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 10),
-              const TextField(
-                obscureText: true,
+              TextField(
+                obscureText: isObscure,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: () => setState(() {
+                      isObscure = !isObscure;
+                    }),
+                    icon: isObscure
+                        ? Icon(
+                            Icons.visibility_off,
+                            color: Theme.of(context).colorScheme.secondary,
+                          )
+                        : Icon(
+                            Icons.visibility,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                  ),
                 ),
+                controller: _passwordController,
+                keyboardType: TextInputType.visiblePassword,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => const HomeScreen(
-                                title: "Sofi",
-                              )));
+                  performLogin(context);
                 },
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all<Color>(
                     Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                child: Text(
-                  'Login',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
+                child: Consumer<LoginProvider>(
+                  builder: (context, loginProvider, child) {
+                    if (loginProvider.state is LoginLoading) {
+                      return SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          strokeWidth: 2.0,
+                        ),
+                      );
+                    }
+                    return Text(
+                      'Login',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    );
+                  },
                 ),
               ),
               Center(
@@ -118,5 +150,41 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           )),
     );
+  }
+
+  Future<void> performLogin(BuildContext context) async {
+    if (_emailController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
+      await context.read<LoginProvider>().login(
+            _emailController.text,
+            _passwordController.text,
+          );
+      if (!context.mounted) return;
+      final loginState = context.read<LoginProvider>().state;
+      if (loginState is LoginSuccess) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const HomeScreen(
+              title: "Sofi",
+            ),
+          ),
+        );
+      } else if (loginState is LoginError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed. ${loginState.message}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }

@@ -8,7 +8,7 @@ class SharedPreferenceService {
     prefs.setString(_userTokenKey, value);
   }
 
-  Future<dynamic> getToken() async {
+  dynamic getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.get(_userTokenKey) ?? "";
   }

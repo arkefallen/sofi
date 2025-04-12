@@ -85,8 +85,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           isObscure = !isObscure;
                         }),
                     icon: isObscure
-                        ? const Icon(Icons.visibility_off)
-                        : const Icon(Icons.visibility)),
+                        ? Icon(
+                            Icons.visibility_off,
+                            color: Theme.of(context).colorScheme.secondary,
+                          )
+                        : Icon(
+                            Icons.visibility,
+                            color: Theme.of(context).colorScheme.secondary,
+                          )),
               ),
               controller: _passwordController,
               keyboardType: TextInputType.visiblePassword,
@@ -104,8 +110,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Consumer<RegisterProvider>(
                 builder: (context, registerProvider, child) {
                   if (registerProvider.state is RegisterLoading) {
-                    return CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.onPrimary,
+                    return SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        strokeWidth: 2.0,
+                      ),
                     );
                   }
                   return Text(
