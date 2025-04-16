@@ -4,6 +4,8 @@ import 'package:sofi/core/theme.dart';
 import 'package:sofi/core/util.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
 import 'package:sofi/data/datasource/story_service.dart';
+import 'package:sofi/presentation/provider/add_story_provider.dart';
+import 'package:sofi/presentation/provider/detail_story_provider.dart';
 import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/provider/login_provider.dart';
 import 'package:sofi/presentation/provider/register_provider.dart';
@@ -28,6 +30,18 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => ListStoryProvider(
+            storyService: context.read<StoryService>(),
+            sharedPreferenceService: context.read<SharedPreferenceService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DetailStoryProvider(
+            storyService: context.read<StoryService>(),
+            sharedPreferenceService: context.read<SharedPreferenceService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AddStoryProvider(
             storyService: context.read<StoryService>(),
             sharedPreferenceService: context.read<SharedPreferenceService>(),
           ),

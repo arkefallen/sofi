@@ -1,12 +1,11 @@
 import 'dart:convert';
 
-class RegisterModel {
-  bool? error;
-  String? message;
+import 'package:sofi/data/model/general_model.dart';
 
+class RegisterModel extends GeneralModel {
   RegisterModel({
-    this.error,
-    this.message,
+    required super.error,
+    required super.message,
   });
 
   factory RegisterModel.fromRawJson(String str) =>

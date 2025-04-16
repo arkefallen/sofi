@@ -1,15 +1,14 @@
 import 'dart:convert';
 
+import 'package:sofi/data/model/general_model.dart';
 import 'package:sofi/data/model/story_model.dart';
 
-class ListStoryModel {
-    final bool error;
-    final String message;
+class ListStoryModel extends GeneralModel {
     List<StoryModel>? listStory;
 
     ListStoryModel({
-        required this.error,
-        required this.message,
+        required super.error,
+        required super.message,
         this.listStory,
     });
 

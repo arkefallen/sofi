@@ -1,14 +1,14 @@
 import 'dart:convert';
+import 'package:sofi/data/model/general_model.dart';
 import 'package:sofi/data/model/login_result_model.dart';
 
-class LoginModel {
-  bool? error;
-  String? message;
+class LoginModel extends GeneralModel{
+
   LoginResultModel? loginResult;
 
   LoginModel({
-    this.error,
-    this.message,
+    required super.error,
+    required super.message,
     this.loginResult,
   });
 

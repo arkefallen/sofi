@@ -27,7 +27,7 @@ class ListStoryProvider with ChangeNotifier {
         return;
       }
       final response = await _storyService.getListStories(token.toString());
-      if (response.error) {
+      if (response.error != null && response.error as bool) {
         _state = ListStoryError(response.message.toString());
       } else if (response.listStory == null || response.listStory!.isEmpty) {
         _state = ListStoryError("No stories found");
