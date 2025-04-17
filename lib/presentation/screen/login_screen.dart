@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/presentation/provider/login_provider.dart';
 import 'package:sofi/presentation/screen/home_screen.dart';
 import 'package:sofi/presentation/screen/register_screen.dart';
@@ -43,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -51,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Hello,',
+                l10n.hello,
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 54,
@@ -66,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
               ),
               Text(
-                'Share your stories and connect with others. Sign in by entering your email and password below.',
+                l10n.loginScreenSubtitle,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 16,
                       color: Colors.grey[700],
@@ -85,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 obscureText: isObscure,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: l10n.password,
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     onPressed: () => setState(() {
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account?",
+                      l10n.dontHaveAccount,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
@@ -153,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     const RegisterScreen()));
                       },
                       child: Text(
-                        'Sign up here.',
+                        l10n.signUpHere,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -177,27 +179,28 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!context.mounted) return;
       final loginState = context.read<LoginProvider>().state;
       if (loginState is LoginSuccess) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) => const HomeScreen(
               title: "Sofi",
             ),
           ),
+          (Route<dynamic> route) => false,
         );
       } else if (loginState is LoginError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Login failed. ${loginState.message}'),
+            content: Text('${AppLocalizations.of(context)!.loginFailed}. ${loginState.message}'),
             duration: const Duration(seconds: 2),
           ),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all fields.'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text('${AppLocalizations.of(context)!.fillFieldSuggestion}.'),
+          duration: const Duration(seconds: 2),
         ),
       );
     }

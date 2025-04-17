@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/screen/add_story_screen.dart';
 import 'package:sofi/presentation/screen/settings_screen.dart';
@@ -105,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }));
         },
         icon: const Icon(Icons.add),
-        label: const Text("Add Story"),
+        label: Text(AppLocalizations.of(context)!.addStory),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         shape: RoundedRectangleBorder(

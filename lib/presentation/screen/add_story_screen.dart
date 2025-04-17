@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/presentation/provider/add_story_provider.dart';
 import 'package:sofi/presentation/screen/home_screen.dart';
 import 'package:sofi/presentation/state/add_story_state.dart';
@@ -35,7 +36,10 @@ class AddStoryScreenState extends State<AddStoryScreen> {
     if (!mounted) return;
     if (image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No image selected')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.noImageSelected),
+          duration: const Duration(seconds: 2),
+        ),
       );
       return;
     }
@@ -51,7 +55,11 @@ class AddStoryScreenState extends State<AddStoryScreen> {
     final XFile? image = provider.selectedImage;
     if (image == null || _descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add an image and description')),
+        SnackBar(
+          content:
+              Text(AppLocalizations.of(context)!.addImageAndDescSuggestion),
+          duration: const Duration(seconds: 2),
+        ),
       );
       return;
     }
@@ -79,7 +87,7 @@ class AddStoryScreenState extends State<AddStoryScreen> {
       final data = provider.state as AddStoryError;
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload story: ${data.message}')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.failedUploadStory}: ${data.message}')),
       );
     }
   }
@@ -87,9 +95,10 @@ class AddStoryScreenState extends State<AddStoryScreen> {
   @override
   Widget build(BuildContext context) {
     final XFile? image = context.watch<AddStoryProvider>().selectedImage;
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Story'),
+        title: Text(l10n.addNewStory),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -118,7 +127,7 @@ class AddStoryScreenState extends State<AddStoryScreen> {
                                 const Icon(Icons.image_not_supported_outlined,
                                     size: 100, color: Colors.grey),
                                 const SizedBox(height: 12),
-                                const Text('No image uploaded'),
+                                Text(l10n.noImageUploaded),
                                 const SizedBox(height: 12),
                                 Row(
                                   mainAxisAlignment:
@@ -129,14 +138,14 @@ class AddStoryScreenState extends State<AddStoryScreen> {
                                         _pickImage(ImageSource.camera);
                                       },
                                       icon: const Icon(Icons.camera),
-                                      label: const Text('Capture'),
+                                      label: Text(l10n.capture),
                                     ),
                                     ElevatedButton.icon(
                                       onPressed: () {
                                         _pickImage(ImageSource.gallery);
                                       },
                                       icon: const Icon(Icons.photo_library),
-                                      label: const Text('Gallery'),
+                                      label: Text(l10n.gallery),
                                     ),
                                   ],
                                 ),
@@ -169,9 +178,9 @@ class AddStoryScreenState extends State<AddStoryScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
+                decoration:  InputDecoration(
+                  labelText: l10n.description,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
                 onChanged: (value) {
@@ -203,7 +212,7 @@ class AddStoryScreenState extends State<AddStoryScreen> {
                       ),
                     );
                   }
-                  return Text('Upload Story',
+                  return Text(l10n.uploadStory,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Theme.of(context).colorScheme.onPrimary,
                           ));

@@ -128,7 +128,6 @@ class StoryService {
     } on SocketException catch (_) {
       throw const SocketException("No Internet Connection");
     } catch (e) {
-      print("error: $e");
       throw Exception(e.toString());
     }
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
+import 'package:sofi/presentation/provider/localization_provider.dart';
 import 'package:sofi/presentation/screen/login_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -8,29 +10,89 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
       ),
       body: ListView(
         children: [
           ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l10n.changeLanguage),
+            onTap: () {
+              showModalBottomSheet(
+                  context: context,
+                  builder: (_) {
+                    return SizedBox(
+                      height: 200,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text(
+                              l10n.selectLanguage,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Column(
+                            children: AppLocalizations.supportedLocales.map(
+                              (locale) {
+                                return ListTile(
+                                  leading: Text(
+                                    context
+                                        .watch<LocalizationProvider>()
+                                        .getFlag(locale.languageCode),
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                  title: locale.languageCode == 'en'
+                                      ? Text(l10n.english)
+                                      : Text(l10n.bahasa),
+                                  onTap: () {
+                                    context
+                                        .read<LocalizationProvider>()
+                                        .setLocale(locale);
+                                    Navigator.of(context).pop();
+                                  },
+                                );
+                              },
+                            ).toList(),
+                          ),
+                        ],
+                      ),
+                    );
+                  });
+            },
+          ),
+          const SizedBox(height: 8),
+          ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+            title: Text(l10n.logout),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
+                  title: Text(l10n.logout),
+                  content: Text(l10n.logoutConfirmation),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                     TextButton(
                       onPressed: () async {
-                        // Perform logout action
                         await context
                             .read<SharedPreferenceService>()
                             .removeAllData();
@@ -40,7 +102,7 @@ class SettingsScreen extends StatelessWidget {
                           return const LoginScreen();
                         }));
                       },
-                      child: const Text('Logout'),
+                      child: Text(l10n.logout),
                     ),
                   ],
                 ),

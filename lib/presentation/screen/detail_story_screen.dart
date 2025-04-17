@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/presentation/provider/detail_story_provider.dart';
 import 'package:sofi/presentation/state/detail_story_state.dart';
 
@@ -25,6 +26,7 @@ class DetailStoryScreenState extends State<DetailStoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -36,7 +38,7 @@ class DetailStoryScreenState extends State<DetailStoryScreen> {
             } else if (value.state is DetailStoryError) {
               return Center(
                 child: Text(
-                  "Get story data failed. \n${(value.state as DetailStoryError).message}",
+                  "${l10n.getDetailStoryFailed}. \n${(value.state as DetailStoryError).message}",
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.red,

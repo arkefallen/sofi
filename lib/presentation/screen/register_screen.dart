@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/presentation/provider/register_provider.dart';
 import 'package:sofi/presentation/screen/login_screen.dart';
 import 'package:sofi/presentation/state/register_state.dart';
@@ -27,6 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -35,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Welcome,',
+              l10n.welcome,
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 54,
@@ -50,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
             ),
             Text(
-              'Join us and share your stories with the world. Register yourself by entering your email and password below.',
+              l10n.registerScreenSubtitle,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontSize: 16,
                     color: Colors.grey[700],
@@ -78,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               obscureText: isObscure,
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: l10n.password,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                     onPressed: () => setState(() {
@@ -120,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     );
                   }
                   return Text(
-                    'Register',
+                    l10n.register,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
@@ -133,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Already have account?",
+                    l10n.haveAccount,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   TextButton(
@@ -145,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const LoginScreen()));
                     },
                     child: Text(
-                      'Sign in here.',
+                      l10n.signInHere,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -190,8 +192,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all fields.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.fillFieldSuggestion),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
