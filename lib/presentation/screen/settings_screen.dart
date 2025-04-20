@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
 import 'package:sofi/presentation/provider/localization_provider.dart';
-import 'package:sofi/presentation/screen/login_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final Function() toLoginScreen;
+  const SettingsScreen({super.key, required this.toLoginScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -96,11 +96,9 @@ class SettingsScreen extends StatelessWidget {
                         await context
                             .read<SharedPreferenceService>()
                             .removeAllData();
+                        toLoginScreen();
                         if (!context.mounted) return;
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) {
-                          return const LoginScreen();
-                        }));
+                        Navigator.pop(context);
                       },
                       child: Text(l10n.logout),
                     ),

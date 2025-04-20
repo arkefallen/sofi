@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sofi/core/l10n/l10n.dart';
+import 'package:sofi/presentation/navigation/page_manager.dart';
 import 'package:sofi/presentation/provider/login_provider.dart';
-import 'package:sofi/presentation/screen/home_screen.dart';
-import 'package:sofi/presentation/screen/register_screen.dart';
 import 'package:sofi/presentation/state/login_state.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final Function() toHomeScreen;
+  final Function() toRegisterScreen;
+
+  const LoginScreen(
+      {super.key, required this.toHomeScreen, required this.toRegisterScreen});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,30 +19,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool isObscure = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final String? message =
-          ModalRoute.of(context)?.settings.arguments as String?;
-      if (message != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    });
-    super.initState();
   }
 
   @override
@@ -85,15 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 10),
               TextField(
-                obscureText: isObscure,
+                obscureText: context.watch<LoginProvider>().isPasswordFormObscured,
                 decoration: InputDecoration(
                   labelText: l10n.password,
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    onPressed: () => setState(() {
-                      isObscure = !isObscure;
-                    }),
-                    icon: isObscure
+                    onPressed: () => context.read<LoginProvider>().setPasswordFormObscured(!context.read<LoginProvider>().isPasswordFormObscured),
+                    icon: context.watch<LoginProvider>().isPasswordFormObscured
                         ? Icon(
                             Icons.visibility_off,
                             color: Theme.of(context).colorScheme.secondary,
@@ -147,12 +130,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    const RegisterScreen()));
+                      onPressed: () async {
+                        widget.toRegisterScreen();
+                        final resultFromRegisterScreen = await context
+                            .read<PageManager>()
+                            .waitForRegisterResult();
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(resultFromRegisterScreen),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
                       },
                       child: Text(
                         l10n.signUpHere,
@@ -179,19 +168,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!context.mounted) return;
       final loginState = context.read<LoginProvider>().state;
       if (loginState is LoginSuccess) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => const HomeScreen(
-              title: "Sofi",
-            ),
-          ),
-          (Route<dynamic> route) => false,
-        );
+        widget.toHomeScreen();
       } else if (loginState is LoginError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${AppLocalizations.of(context)!.loginFailed}. ${loginState.message}'),
+            content: Text(
+                '${AppLocalizations.of(context)!.loginFailed}. ${loginState.message}'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -199,7 +181,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${AppLocalizations.of(context)!.fillFieldSuggestion}.'),
+          content:
+              Text('${AppLocalizations.of(context)!.fillFieldSuggestion}.'),
           duration: const Duration(seconds: 2),
         ),
       );

@@ -12,12 +12,21 @@ class LoginProvider with ChangeNotifier {
 
   LoginState get state => _state;
 
-  LoginProvider({required StoryService storyService, required SharedPreferenceService sharedPreferenceService})
+  LoginProvider(
+      {required StoryService storyService,
+      required SharedPreferenceService sharedPreferenceService})
       : _sharedPreferenceService = sharedPreferenceService,
         _storyService = storyService;
 
+  bool _isPasswordFormObscured = true;
+  bool get isPasswordFormObscured => _isPasswordFormObscured;
+  void setPasswordFormObscured(bool value) {
+    _isPasswordFormObscured = value;
+    notifyListeners();
+  }
+
   Future<void> login(
-    String email, 
+    String email,
     String password,
   ) async {
     try {
@@ -29,8 +38,10 @@ class LoginProvider with ChangeNotifier {
       } else if (response.loginResult == null) {
         _state = LoginError("No data found");
       } else {
-        _state = LoginSuccess(response.loginResult!.name.toString(), response.loginResult!.userId.toString());
-        await _sharedPreferenceService.saveToken(response.loginResult!.token.toString());
+        _state = LoginSuccess(response.loginResult!.name.toString(),
+            response.loginResult!.userId.toString());
+        await _sharedPreferenceService
+            .saveToken(response.loginResult!.token.toString());
       }
       notifyListeners();
     } on SocketException catch (e) {

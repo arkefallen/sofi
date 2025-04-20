@@ -5,14 +5,14 @@ import 'package:sofi/core/theme.dart';
 import 'package:sofi/core/util.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
 import 'package:sofi/data/datasource/story_service.dart';
+import 'package:sofi/presentation/navigation/page_manager.dart';
+import 'package:sofi/presentation/navigation/router_delegate.dart';
 import 'package:sofi/presentation/provider/add_story_provider.dart';
 import 'package:sofi/presentation/provider/detail_story_provider.dart';
 import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/provider/localization_provider.dart';
 import 'package:sofi/presentation/provider/login_provider.dart';
 import 'package:sofi/presentation/provider/register_provider.dart';
-import 'package:sofi/presentation/screen/home_screen.dart';
-import 'package:sofi/presentation/screen/login_screen.dart';
 
 void main() {
   runApp(
@@ -49,14 +49,30 @@ void main() {
           ),
         ),
         ChangeNotifierProvider(create: (_) => LocalizationProvider()),
+        ChangeNotifierProvider(create: (_) => PageManager()),
       ],
       child: const SofiApp(),
     ),
   );
 }
 
-class SofiApp extends StatelessWidget {
+class SofiApp extends StatefulWidget {
   const SofiApp({super.key});
+
+  @override
+  State<SofiApp> createState() => _SofiAppState();
+}
+
+class _SofiAppState extends State<SofiApp> {
+  late final SofiRouterDelegate routerDelegate;
+
+  @override
+  void initState() {
+    super.initState();
+    routerDelegate = SofiRouterDelegate(
+      context.read<SharedPreferenceService>(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +82,6 @@ class SofiApp extends StatelessWidget {
 
     return Consumer<SharedPreferenceService>(
       builder: (context, sharedPreferenceService, child) {
-        final token = sharedPreferenceService.getToken();
-        final initialScreen = (token != null && token.toString().isNotEmpty)
-            ? const HomeScreen(title: "Sofi")
-            : const LoginScreen();
-
         return MaterialApp(
           locale: context.watch<LocalizationProvider>().locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -87,7 +98,8 @@ class SofiApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(1.0)),
               child: child!,
             );
           },
@@ -95,7 +107,10 @@ class SofiApp extends StatelessWidget {
 
           title: 'Sofi',
           theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-          home: initialScreen,
+          home: Router(
+            routerDelegate: routerDelegate,
+            backButtonDispatcher: RootBackButtonDispatcher(),
+          ),
         );
       },
     );

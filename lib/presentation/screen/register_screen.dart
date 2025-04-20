@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sofi/core/l10n/l10n.dart';
+import 'package:sofi/presentation/navigation/page_manager.dart';
 import 'package:sofi/presentation/provider/register_provider.dart';
-import 'package:sofi/presentation/screen/login_screen.dart';
 import 'package:sofi/presentation/state/register_state.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final Function() toLoginScreen;
+
+  const RegisterScreen({super.key, required this.toLoginScreen});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -16,7 +18,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool isObscure = true;
 
   @override
   void dispose() {
@@ -78,15 +79,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 10),
             TextField(
-              obscureText: isObscure,
+              obscureText: context.watch<RegisterProvider>().isPasswordFormObscured,
               decoration: InputDecoration(
                 labelText: l10n.password,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
-                    onPressed: () => setState(() {
-                          isObscure = !isObscure;
-                        }),
-                    icon: isObscure
+                    onPressed: () => context.read<RegisterProvider>().setPasswordFormObscured(!context.read<RegisterProvider>().isPasswordFormObscured),
+                    icon: context.watch<RegisterProvider>().isPasswordFormObscured
                         ? Icon(
                             Icons.visibility_off,
                             color: Theme.of(context).colorScheme.secondary,
@@ -140,11 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  const LoginScreen()));
+                      widget.toLoginScreen();
                     },
                     child: Text(
                       l10n.signInHere,
@@ -174,15 +169,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!context.mounted) return;
       final state = context.read<RegisterProvider>().state;
       if (state is RegisterSuccess) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-            settings: RouteSettings(
-              arguments: state.data.message.toString(),
-            ),
-          ),
-        );
+        widget.toLoginScreen();
+        context.read<PageManager>().returnRegisterResult(
+              state.data.message.toString(),
+            );
       } else if (state is RegisterError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

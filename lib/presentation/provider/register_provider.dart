@@ -5,7 +5,6 @@ import 'package:sofi/data/datasource/story_service.dart';
 import 'package:sofi/presentation/state/register_state.dart';
 
 class RegisterProvider with ChangeNotifier {
-
   RegisterState _state = RegisterInitial();
   final StoryService _storyService;
 
@@ -13,6 +12,13 @@ class RegisterProvider with ChangeNotifier {
 
   RegisterProvider({required StoryService storyService})
       : _storyService = storyService;
+
+  bool _isPasswordFormObscured = true;
+  bool get isPasswordFormObscured => _isPasswordFormObscured;
+    void setPasswordFormObscured(bool value) {
+    _isPasswordFormObscured = value;
+    notifyListeners();
+  }
 
   Future<void> register(
     String name,

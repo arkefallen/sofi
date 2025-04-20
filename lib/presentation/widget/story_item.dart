@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:sofi/presentation/screen/detail_story_screen.dart';
 
 class StoryItem extends StatelessWidget {
   final String? id;
   final String? imageUrl;
   final String? username;
   final String? storyText;
+  final Function(String)? toDetailStoryScreen;
   const StoryItem(
-      {super.key, this.imageUrl, this.username, this.storyText, this.id});
+      {super.key, this.imageUrl, this.username, this.storyText, this.id, this.toDetailStoryScreen});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return DetailStoryScreen(storyId: id.toString());
-        }));
+        if (id != null) {
+          toDetailStoryScreen!(id!);
+        }
       },
       borderRadius: BorderRadius.circular(20),
       child: Stack(
@@ -69,6 +69,8 @@ class StoryItem extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 20,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
               ),
             ),
           ),

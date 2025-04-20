@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:sofi/core/l10n/l10n.dart';
+import 'package:sofi/presentation/navigation/page_manager.dart';
 import 'package:sofi/presentation/provider/add_story_provider.dart';
-import 'package:sofi/presentation/screen/home_screen.dart';
+import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/state/add_story_state.dart';
 
 class AddStoryScreen extends StatefulWidget {
-  const AddStoryScreen({super.key});
+  final Function() toHomeScreen;
+
+  const AddStoryScreen({super.key, required this.toHomeScreen});
 
   @override
   AddStoryScreenState createState() => AddStoryScreenState();
@@ -71,23 +74,18 @@ class AddStoryScreenState extends State<AddStoryScreen> {
       context.read<AddStoryProvider>().imageData = null;
       context.read<AddStoryProvider>().description = null;
       context.read<AddStoryProvider>().filename = null;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(
-            title: "Sofi",
-          ),
-          settings: RouteSettings(
-            arguments: data.data.message.toString(),
-          ),
-        ),
-        (route) => false,
-      );
+      widget.toHomeScreen();
+      context
+          .read<PageManager>()
+          .returnAddStoryResult(data.data.message.toString());
+      await context.read<ListStoryProvider>().fetchListStories();
     } else {
       final data = provider.state as AddStoryError;
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${AppLocalizations.of(context)!.failedUploadStory}: ${data.message}')),
+        SnackBar(
+            content: Text(
+                '${AppLocalizations.of(context)!.failedUploadStory}: ${data.message}')),
       );
     }
   }
@@ -178,7 +176,7 @@ class AddStoryScreenState extends State<AddStoryScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _descriptionController,
-                decoration:  InputDecoration(
+                decoration: InputDecoration(
                   labelText: l10n.description,
                   border: const OutlineInputBorder(),
                 ),
