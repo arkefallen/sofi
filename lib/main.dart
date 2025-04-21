@@ -71,6 +71,7 @@ class _SofiAppState extends State<SofiApp> {
     super.initState();
     routerDelegate = SofiRouterDelegate(
       context.read<SharedPreferenceService>(),
+      context.read<LocalizationProvider>(),
     );
   }
 

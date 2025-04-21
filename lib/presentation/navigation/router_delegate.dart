@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:sofi/core/l10n/l10n.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
+import 'package:sofi/presentation/provider/localization_provider.dart';
 import 'package:sofi/presentation/screen/add_story_screen.dart';
 import 'package:sofi/presentation/screen/detail_story_screen.dart';
 import 'package:sofi/presentation/screen/home_screen.dart';
 import 'package:sofi/presentation/screen/login_screen.dart';
 import 'package:sofi/presentation/screen/register_screen.dart';
 import 'package:sofi/presentation/screen/settings_screen.dart';
+import 'package:sofi/presentation/widget/bottom_sheet_page.dart';
+import 'package:sofi/presentation/widget/dialog_page.dart';
 
 class SofiRouterDelegate extends RouterDelegate
     with ChangeNotifier, PopNavigatorRouterDelegateMixin {
   final GlobalKey<NavigatorState> _navigatorKey;
   final SharedPreferenceService _sharedPreferenceService;
+  final LocalizationProvider _localizationProvider;
 
-  SofiRouterDelegate(
-    this._sharedPreferenceService,
-  ) : _navigatorKey = GlobalKey<NavigatorState>() {
+  SofiRouterDelegate(this._sharedPreferenceService, this._localizationProvider)
+      : _navigatorKey = GlobalKey<NavigatorState>() {
     _checkLoggedIn();
   }
 
@@ -37,12 +41,14 @@ class SofiRouterDelegate extends RouterDelegate
   bool isRegister = false;
   bool isAddStory = false;
   bool isSettings = false;
+  bool isLogoutConfirmation = false;
+  bool isChangeLanguage = false;
   String? selectedStory;
 
   @override
   Widget build(BuildContext context) {
     if (isLoggedIn) {
-      navStack = _loggedInStack;
+      navStack = _loggedInStack(context);
     } else {
       navStack = _loggedOutStack;
     }
@@ -91,58 +97,117 @@ class SofiRouterDelegate extends RouterDelegate
           ),
       ];
 
-  List<Page> get _loggedInStack => [
+  List<Page> _loggedInStack(BuildContext context) {
+    return [
+      MaterialPage(
+        key: const ValueKey('HomeScreen'),
+        child: HomeScreen(
+          toLoginScreen: () {
+            isLoggedIn = false;
+            notifyListeners();
+          },
+          toAddStoryScreen: () {
+            isAddStory = true;
+            notifyListeners();
+          },
+          toSettingsScreen: () {
+            isSettings = true;
+            notifyListeners();
+          },
+          title: 'Sofi',
+          toDetailStoryScreen: (storyId) {
+            selectedStory = storyId;
+            notifyListeners();
+          },
+        ),
+      ),
+      if (isAddStory)
         MaterialPage(
-          key: const ValueKey('HomeScreen'),
-          child: HomeScreen(
-            toLoginScreen: () {
-              isLoggedIn = false;
-              notifyListeners();
-            },
-            toAddStoryScreen: () {
-              isAddStory = true;
-              notifyListeners();
-            },
-            toSettingsScreen: () {
-              isSettings = true;
-              notifyListeners();
-            },
-            title: 'Sofi',
-            toDetailStoryScreen: (storyId) {
-              selectedStory = storyId;
+          key: const ValueKey('AddStoryScreen'),
+          child: AddStoryScreen(
+            toHomeScreen: () {
+              isAddStory = false;
               notifyListeners();
             },
           ),
         ),
-        if (isAddStory)
-          MaterialPage(
-            key: const ValueKey('AddStoryScreen'),
-            child: AddStoryScreen(
-              toHomeScreen: () {
-                isAddStory = false;
-                notifyListeners();
+      if (isSettings)
+        MaterialPage(
+          key: const ValueKey('SettingsScreen'),
+          child: SettingsScreen(
+            toLoginScreen: () {
+              isLoggedIn = false;
+              notifyListeners();
+              _checkLoggedIn();
+            },
+            onLogoutConfirmation: () {
+              isLogoutConfirmation = true;
+              notifyListeners();
+            },
+            onChangeLanguage: () {
+              isChangeLanguage = true;
+              notifyListeners();
+            },
+          ),
+        ),
+      if (selectedStory != null)
+        MaterialPage(
+          key: ValueKey(selectedStory),
+          child: DetailStoryScreen(
+            storyId: selectedStory!,
+          ),
+        ),
+      if (isLogoutConfirmation)
+        DialogPage(
+          key: const ValueKey('LogoutConfirmation'),
+          title: AppLocalizations.of(context)!.logout,
+          content: AppLocalizations.of(context)!.logoutConfirmation,
+          onConfirm: () {
+            _sharedPreferenceService.removeAllData();
+            isLoggedIn = false;
+            isLogoutConfirmation = false;
+            notifyListeners();
+          },
+          onCancel: () {
+            isLogoutConfirmation = false;
+            notifyListeners();
+          },
+          confirmText: AppLocalizations.of(context)!.logout,
+          cancelText: AppLocalizations.of(context)!.cancel,
+        ),
+      if (isChangeLanguage)
+        BottomSheetPage(
+          key: const ValueKey('ChangeLanguage'),
+          title: AppLocalizations.of(context)!.selectLanguage,
+          content: Column(
+            children: AppLocalizations.supportedLocales.map(
+              (locale) {
+                return ListTile(
+                  leading: Text(
+                    _localizationProvider.getFlag(locale.languageCode),
+                    style: const TextStyle(
+                      fontSize: 24,
+                    ),
+                  ),
+                  title: locale.languageCode == 'en'
+                      ? Text(AppLocalizations.of(context)!.english)
+                      : Text(AppLocalizations.of(context)!.bahasa),
+                  onTap: () {
+                    _localizationProvider.setLocale(locale);
+                    isChangeLanguage = false;
+                    notifyListeners();
+                  },
+                );
               },
-            ),
+            ).toList(),
           ),
-        if (isSettings)
-          MaterialPage(
-            key: const ValueKey('SettingsScreen'),
-            child: SettingsScreen(
-              toLoginScreen: () {
-                isLoggedIn = false;
-                notifyListeners();
-                _checkLoggedIn();
-              },
-            ),
-          ),
-        if (selectedStory != null)
-          MaterialPage(
-            key: ValueKey(selectedStory),
-            child: DetailStoryScreen(
-              storyId: selectedStory!,
-            ),
-          ),
-      ];
+          onCancel: () {
+            isChangeLanguage = false;
+            notifyListeners();
+          },
+        )
+    ];
+  }
 
   @override
   Future<void> setNewRoutePath(configuration) async {}
