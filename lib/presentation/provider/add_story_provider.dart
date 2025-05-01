@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
 import 'package:sofi/data/datasource/story_service.dart';
@@ -17,7 +18,25 @@ class AddStoryProvider with ChangeNotifier {
   double? _longitude;
   XFile? _selectedImage;
   bool _isButtonActive = false;
+  GoogleMapController? _mapController;
+
+  GoogleMapController? get mapController => _mapController;
+
+  set mapController(GoogleMapController? value) {
+    _mapController = value;
+    notifyListeners();
+  }
+
   bool get isButtonActive => _isButtonActive;
+
+  bool _isLocationEnabled = false;
+  bool get isLocationEnabled => _isLocationEnabled;
+
+  set isLocationEnabled(bool value) {
+    _isLocationEnabled = value;
+    notifyListeners();
+  }
+
   set isButtonActive(bool value) {
     _isButtonActive = value;
     notifyListeners();
@@ -94,5 +113,19 @@ class AddStoryProvider with ChangeNotifier {
       _state = AddStoryError(e.toString());
       notifyListeners();
     }
+  }
+
+  void resetLocation() {
+    _latitude = null;
+    _longitude = null;
+    _isLocationEnabled = false;
+    notifyListeners();
+  }
+
+  void setLocation(double latitude, double longitude) {
+    _latitude = latitude;
+    _longitude = longitude;
+    _isLocationEnabled = true;
+    notifyListeners();
   }
 }

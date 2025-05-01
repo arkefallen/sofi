@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sofi/core/l10n/l10n.dart';
-import 'package:sofi/presentation/navigation/page_manager.dart';
+import 'package:sofi/core/navigation/page_manager.dart';
 import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/state/list_story_state.dart';
 import 'package:sofi/presentation/widget/story_item.dart';

@@ -29,5 +29,13 @@
     "loginScreenSubtitle": "Bagikan ceritamu dan terhubung dengan orang lain. Masuk dengan akunmu dengan mengisi email dan kata sandi.",
     "register": "Daftar",
     "getDetailStoryFailed": "Pengambilan data cerita gagal",
-    "selectLanguage": "Pilih Bahasa"
+    "selectLanguage": "Pilih Bahasa",
+    "location": "Lokasi",
+    "shareMyLocation": "Bagikan Lokasi Saya",
+    "selectLocation" : "Pilih Lokasi",
+    "allowLocationSuggestion" : "Aktifkan GPS and izinkan akses lokasi untuk melihat peta",
+    "currentLocationTitle" : "Lokasi Saat Ini",
+    "selectedLocationTitle" : "Lokasi Pilihanmu",
+    "currentLocationDescription": "Lokasimu saat ini",
+    "selectedLocationDescription" : "Lokasi pilihanmu sekarang"
 }

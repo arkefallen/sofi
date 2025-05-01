@@ -6,6 +6,7 @@ import 'package:sofi/presentation/screen/add_story_screen.dart';
 import 'package:sofi/presentation/screen/detail_story_screen.dart';
 import 'package:sofi/presentation/screen/home_screen.dart';
 import 'package:sofi/presentation/screen/login_screen.dart';
+import 'package:sofi/presentation/screen/maps_screen.dart';
 import 'package:sofi/presentation/screen/register_screen.dart';
 import 'package:sofi/presentation/screen/settings_screen.dart';
 import 'package:sofi/presentation/widget/bottom_sheet_page.dart';
@@ -40,6 +41,7 @@ class SofiRouterDelegate extends RouterDelegate
   bool isLoggedIn = false;
   bool isRegister = false;
   bool isAddStory = false;
+  bool isMaps = false;
   bool isSettings = false;
   bool isLogoutConfirmation = false;
   bool isChangeLanguage = false;
@@ -65,6 +67,8 @@ class SofiRouterDelegate extends RouterDelegate
           isAddStory = false;
         } else if (key.value == 'SettingsScreen') {
           isSettings = false;
+        } else if (key.value == 'MapsScreen') {
+          isMaps = false;
         }
         notifyListeners();
       },
@@ -127,6 +131,10 @@ class SofiRouterDelegate extends RouterDelegate
           child: AddStoryScreen(
             toHomeScreen: () {
               isAddStory = false;
+              notifyListeners();
+            },
+            toMapsScreen: () {
+              isMaps = true;
               notifyListeners();
             },
           ),
@@ -205,7 +213,17 @@ class SofiRouterDelegate extends RouterDelegate
             isChangeLanguage = false;
             notifyListeners();
           },
-        )
+        ),
+      if (isMaps)
+        MaterialPage(
+          key: const ValueKey('MapsScreen'),
+          child: MapsScreen(
+            onLocationFinalized: () {
+              isMaps = false;
+              notifyListeners();
+            },
+          ),
+        ),
     ];
   }
 

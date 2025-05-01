@@ -5,13 +5,14 @@ import 'package:sofi/core/theme.dart';
 import 'package:sofi/core/util.dart';
 import 'package:sofi/data/datasource/shared_preference_service.dart';
 import 'package:sofi/data/datasource/story_service.dart';
-import 'package:sofi/presentation/navigation/page_manager.dart';
-import 'package:sofi/presentation/navigation/router_delegate.dart';
+import 'package:sofi/core/navigation/page_manager.dart';
+import 'package:sofi/core/navigation/router_delegate.dart';
 import 'package:sofi/presentation/provider/add_story_provider.dart';
 import 'package:sofi/presentation/provider/detail_story_provider.dart';
 import 'package:sofi/presentation/provider/list_story_provider.dart';
 import 'package:sofi/presentation/provider/localization_provider.dart';
 import 'package:sofi/presentation/provider/login_provider.dart';
+import 'package:sofi/presentation/provider/maps_provider.dart';
 import 'package:sofi/presentation/provider/register_provider.dart';
 
 void main() {
@@ -50,6 +51,7 @@ void main() {
         ),
         ChangeNotifierProvider(create: (_) => LocalizationProvider()),
         ChangeNotifierProvider(create: (_) => PageManager()),
+        ChangeNotifierProvider(create: (_) => MapsProvider()),
       ],
       child: const SofiApp(),
     ),
@@ -96,7 +98,6 @@ class _SofiAppState extends State<SofiApp> {
             }
             return supportedLocales.first;
           },
-          debugShowCheckedModeBanner: false,
           builder: (context, child) {
             return MediaQuery(
               data: MediaQuery.of(context)
@@ -104,8 +105,6 @@ class _SofiAppState extends State<SofiApp> {
               child: child!,
             );
           },
-          // theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-
           title: 'Sofi',
           theme: brightness == Brightness.light ? theme.light() : theme.dark(),
           home: Router(

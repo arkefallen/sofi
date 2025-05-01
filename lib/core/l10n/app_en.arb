@@ -29,5 +29,13 @@
     "loginScreenSubtitle": "Share your stories and connect with others. Sign in by entering your email and password below.",
     "register": "Register",
     "getDetailStoryFailed": "Get story data failed",
-    "selectLanguage": "Select Language"
+    "selectLanguage": "Select Language",
+    "location": "Location",
+    "shareMyLocation": "Share My Location",
+    "selectLocation" : "Select Location",
+    "allowLocationSuggestion" : "Please enable GPS and allow location permission to use the map." ,
+    "currentLocationTitle" : "Current Location",
+    "selectedLocationTitle" : "Selected Location",
+    "currentLocationDescription": "Your last current location",
+    "selectedLocationDescription" : "Your recent selected location"
 }
