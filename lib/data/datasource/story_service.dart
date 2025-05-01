@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:sofi/data/model/add_story_model.dart';
 import 'package:sofi/data/model/detail_story_model.dart';
 import 'package:sofi/data/model/list_story_model.dart';
@@ -102,29 +104,39 @@ class StoryService {
     double? longitude,
   }) async {
     try {
-      final http.MultipartRequest request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$_baseUrl/stories'),
-      );
-      final http.MultipartFile multiPartFile = http.MultipartFile.fromBytes(
-        "photo",
-        imageData,
-        filename: filename,
-      );
-      Map<String, String> fields = {
+      final dio = Dio();
+      if (kDebugMode) {
+        dio.interceptors.add(
+          PrettyDioLogger(
+              requestHeader: true,
+              responseHeader: true,
+              requestBody: true,
+              responseBody: true,
+              error: true),
+        );
+      }
+
+      final formData = FormData.fromMap({
+        "photo": MultipartFile.fromBytes(
+          imageData,
+          filename: filename,
+        ),
         "description": description,
-      };
-      final Map<String, String> headers = {
-        "Authorization": "Bearer $token",
-        "Content-Type": "multipart/form-data",
-      };
-      request.fields.addAll(fields);
-      request.headers.addAll(headers);
-      request.files.add(multiPartFile);
-      final http.StreamedResponse streamedResponse = await request.send();
-      final Uint8List responseList = await streamedResponse.stream.toBytes();
-      final String responseData = String.fromCharCodes(responseList);
-      return AddStoryModel.fromRawJson(responseData);
+        if (latitude != null) "lat": latitude.toString(),
+        if (longitude != null) "lon": longitude.toString(),
+      });
+
+      final response = await dio.post(
+        '$_baseUrl/stories',
+        data: formData,
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "multipart/form-data",
+          },
+        ),
+      );
+      return AddStoryModel.fromJson(response.data as Map<String, dynamic>);
     } on SocketException catch (_) {
       throw const SocketException("No Internet Connection");
     } catch (e) {
