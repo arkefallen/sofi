@@ -37,5 +37,6 @@
     "currentLocationTitle" : "Current Location",
     "selectedLocationTitle" : "Selected Location",
     "currentLocationDescription": "Your last current location",
-    "selectedLocationDescription" : "Your recent selected location"
+    "selectedLocationDescription" : "Your recent selected location",
+    "address": "Address"
 }

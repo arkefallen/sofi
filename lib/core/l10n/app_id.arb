@@ -37,5 +37,6 @@
     "currentLocationTitle" : "Lokasi Saat Ini",
     "selectedLocationTitle" : "Lokasi Pilihanmu",
     "currentLocationDescription": "Lokasimu saat ini",
-    "selectedLocationDescription" : "Lokasi pilihanmu sekarang"
+    "selectedLocationDescription" : "Lokasi pilihanmu sekarang",
+    "address": "Alamat"
 }

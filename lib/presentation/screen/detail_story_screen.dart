@@ -57,25 +57,30 @@ class DetailStoryScreenState extends State<DetailStoryScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.account_circle,
-                              size: 36.0,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              story.name.toString(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium
-                                  ?.copyWith(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_circle,
+                                size: 36.0,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 16),
+                              Flexible(
+                                child: Text(
+                                  story.name.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displayMedium
+                                      ?.copyWith(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Text(
                           formatDate(story.createdAt.toString()),
@@ -136,6 +141,10 @@ class DetailStoryScreenState extends State<DetailStoryScreen> {
                             Marker(
                               markerId: const MarkerId('storyLocation'),
                               position: LatLng(story.lat!, story.lon!),
+                              infoWindow: InfoWindow(
+                                title: l10n.address,
+                                snippet: story.address!,
+                              ),
                             ),
                           },
                           onMapCreated: (controller) {
