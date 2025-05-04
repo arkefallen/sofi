@@ -12,6 +12,21 @@ import 'package:sofi/data/model/register_model.dart';
 
 class StoryService {
   static const String _baseUrl = 'https://story-api.dicoding.dev/v1';
+  final _dioClient = Dio();
+
+  StoryService() {
+    if (kDebugMode) {
+      _dioClient.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          responseHeader: true,
+          requestBody: true,
+          responseBody: true,
+          error: true,
+        ),
+      );
+    }
+  }
 
   Future<LoginModel> login(
     String email,
@@ -61,16 +76,30 @@ class StoryService {
     }
   }
 
-  Future<ListStoryModel> getListStories(String token) async {
+  Future<ListStoryModel> getListStories(
+    String token, [
+    int? page,
+    int? size,
+  ]) async {
     try {
-      var response = await http.get(
-        Uri.parse('$_baseUrl/stories'),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
+
+      final formData = FormData.fromMap({
+        if (page != null) "page": page,
+        if (size != null) "size": size,
+        "location": "1",
+      });
+
+      final response = await _dioClient.get(
+        '$_baseUrl/stories',
+        data: formData,
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "applciation/json",
+          },
+        ),
       );
-      return ListStoryModel.fromRawJson(response.body);
+      return ListStoryModel.fromJson(response.data as Map<String, dynamic>);
     } on SocketException catch (_) {
       throw const SocketException("No Internet Connection");
     } catch (e) {
@@ -104,18 +133,6 @@ class StoryService {
     double? longitude,
   }) async {
     try {
-      final dio = Dio();
-      if (kDebugMode) {
-        dio.interceptors.add(
-          PrettyDioLogger(
-              requestHeader: true,
-              responseHeader: true,
-              requestBody: true,
-              responseBody: true,
-              error: true),
-        );
-      }
-
       final formData = FormData.fromMap({
         "photo": MultipartFile.fromBytes(
           imageData,
@@ -126,7 +143,7 @@ class StoryService {
         if (longitude != null) "lon": longitude.toString(),
       });
 
-      final response = await dio.post(
+      final response = await _dioClient.post(
         '$_baseUrl/stories',
         data: formData,
         options: Options(

@@ -12,28 +12,43 @@ class ListStoryProvider with ChangeNotifier {
 
   ListStoryState get state => _state;
 
-  ListStoryProvider({required StoryService storyService, required SharedPreferenceService sharedPreferenceService})
+  int? pageItems = 1;
+  int sizeItems = 15;
+
+  ListStoryProvider(
+      {required StoryService storyService,
+      required SharedPreferenceService sharedPreferenceService})
       : _sharedPreferenceService = sharedPreferenceService,
         _storyService = storyService;
 
   Future<void> fetchListStories() async {
     try {
-      _state = ListStoryLoading();
-      notifyListeners();
+      if (pageItems == 1) {
+        _state = ListStoryLoading();
+        notifyListeners();
+      }
       final token = await _sharedPreferenceService.getToken();
       if (token == null || token == "") {
         _state = ListStoryError("User not logged in yet, please login first.");
         notifyListeners();
         return;
       }
-      final response = await _storyService.getListStories(token.toString());
+      final response = await _storyService.getListStories(
+          token.toString(), pageItems, sizeItems);
       if (response.error != null && response.error as bool) {
         _state = ListStoryError(response.message.toString());
       } else if (response.listStory == null || response.listStory!.isEmpty) {
         _state = ListStoryError("No stories found");
       } else {
+        if (response.listStory!.length < sizeItems) {
+          pageItems = null;
+        } else {
+          pageItems = pageItems! + 1;
+        }
+        notifyListeners();
         _state = ListStorySuccess(response.listStory!);
       }
+
       notifyListeners();
     } on SocketException catch (e) {
       _state = ListStoryError(e.message);

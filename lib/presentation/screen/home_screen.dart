@@ -27,13 +27,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent) {
+        if (context.watch<ListStoryProvider>().pageItems != null) {
+          context.read<ListStoryProvider>().fetchListStories();
+        }
+      }
+    });
+
     Future.microtask(() {
       // ignore: use_build_context_synchronously
       context.read<ListStoryProvider>().fetchListStories();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -64,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Consumer<ListStoryProvider>(
               builder: (context, value, child) {
-                if (value.state is ListStoryLoading) {
+                if (value.state is ListStoryLoading && value.pageItems == 1) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (value.state is ListStoryError) {
                   return Center(
@@ -77,22 +95,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 } else if (value.state is ListStorySuccess) {
                   final stories = (value.state as ListStorySuccess).stories;
-                  return Column(
-                    children: stories
-                        .map((story) => Padding(
-                              padding: const EdgeInsets.only(bottom: 24.0),
-                              child: StoryItem(
-                                imageUrl: story.photoUrl,
-                                username: story.name,
-                                storyText: story.description,
-                                id: story.id,
-                                toDetailStoryScreen: (String storyId) {
-                                  widget.toDetailStoryScreen(storyId);
-                                },
-                              ),
-                            ))
-                        .toList(),
-                  );
+                  return ListView.builder(
+                      controller: _scrollController,
+                      itemBuilder: (context, index) {
+                        if (value.pageItems != null &&
+                            index == stories.length) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: StoryItem(
+                            imageUrl: stories[index].photoUrl,
+                            username: stories[index].name,
+                            storyText: stories[index].description,
+                            id: stories[index].id,
+                            toDetailStoryScreen: (String storyId) {
+                              widget.toDetailStoryScreen(storyId);
+                            },
+                          ),
+                        );
+                      },
+                      itemCount:
+                          stories.length + (value.pageItems != null ? 1 : 0),
+                      shrinkWrap: true);
                 }
                 return const SizedBox.shrink();
               },
