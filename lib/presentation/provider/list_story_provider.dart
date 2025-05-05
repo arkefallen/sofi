@@ -45,7 +45,6 @@ class ListStoryProvider with ChangeNotifier {
         } else {
           pageItems = pageItems! + 1;
         }
-        notifyListeners();
         _state = ListStorySuccess(response.listStory!);
       }
 

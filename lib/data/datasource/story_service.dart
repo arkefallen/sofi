@@ -82,22 +82,18 @@ class StoryService {
     int? size,
   ]) async {
     try {
-
-      final formData = FormData.fromMap({
-        if (page != null) "page": page,
-        if (size != null) "size": size,
-        "location": "1",
-      });
-
       final response = await _dioClient.get(
         '$_baseUrl/stories',
-        data: formData,
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
-            "Content-Type": "applciation/json",
           },
         ),
+        queryParameters: {
+          if (page != null) "page": page,
+          if (size != null) "size": size,
+          "location": "1",
+        },
       );
       return ListStoryModel.fromJson(response.data as Map<String, dynamic>);
     } on SocketException catch (_) {
