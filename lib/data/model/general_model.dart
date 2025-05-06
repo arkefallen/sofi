@@ -1,5 +1,8 @@
-import 'dart:convert';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'general_model.g.dart';
+
+@JsonSerializable()
 class GeneralModel {
   bool? error;
   String? message;
@@ -9,11 +12,5 @@ class GeneralModel {
     this.message,
   });
 
-  factory GeneralModel.fromRawJson(String str) =>
-      GeneralModel.fromJson(json.decode(str));
-
-  factory GeneralModel.fromJson(Map<String, dynamic> json) => GeneralModel(
-        error: json["error"],
-        message: json["message"],
-      );
+  factory GeneralModel.fromJson(Map<String, dynamic> json) => _$GeneralModelFromJson(json);
 }

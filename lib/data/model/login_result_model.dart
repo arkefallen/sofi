@@ -1,5 +1,9 @@
-import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'login_result_model.g.dart';
+
+@JsonSerializable()
 class LoginResultModel {
     String? userId;
     String? name;
@@ -11,11 +15,5 @@ class LoginResultModel {
         this.token,
     });
 
-    factory LoginResultModel.fromRawJson(String str) => LoginResultModel.fromJson(json.decode(str));
-
-    factory LoginResultModel.fromJson(Map<String, dynamic> json) => LoginResultModel(
-        userId: json["userId"],
-        name: json["name"],
-        token: json["token"],
-    );
+    factory LoginResultModel.fromJson(Map<String, dynamic> json) => _$LoginResultModelFromJson(json);
 }

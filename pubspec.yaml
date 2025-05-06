@@ -28,12 +28,15 @@ dependencies:
   dio: ^5.8.0+1
   pretty_dio_logger: ^1.4.0
   geocoding: ^3.0.0
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+  json_serializable: ^6.6.1
 
 flutter:
   uses-material-design: true

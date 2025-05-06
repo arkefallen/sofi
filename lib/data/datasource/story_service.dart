@@ -7,7 +7,6 @@ import 'package:sofi/data/model/add_story_model.dart';
 import 'package:sofi/data/model/detail_story_model.dart';
 import 'package:sofi/data/model/list_story_model.dart';
 import 'package:sofi/data/model/login_model.dart';
-import 'package:http/http.dart' as http;
 import 'package:sofi/data/model/register_model.dart';
 
 class StoryService {
@@ -33,17 +32,14 @@ class StoryService {
     String password,
   ) async {
     try {
-      var response = await http.post(
-        Uri.parse('$_baseUrl/login'),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: {
+      var response = await _dioClient.post(
+        '$_baseUrl/login',
+        data: {
           'email': email,
           'password': password,
         },
       );
-      return LoginModel.fromRawJson(response.body);
+      return LoginModel.fromJson(response.data as Map<String, dynamic>);
     } on SocketException catch (_) {
       throw const SocketException("No Internet Connection");
     } catch (e) {
@@ -57,18 +53,15 @@ class StoryService {
     String password,
   ) async {
     try {
-      var response = await http.post(
-        Uri.parse('$_baseUrl/register'),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: {
+      var response = await _dioClient.post(
+        '$_baseUrl/register',
+        data: {
           'name': name,
           'email': email,
           'password': password,
         },
       );
-      return RegisterModel.fromRawJson(response.body);
+      return RegisterModel.fromJson(response.data as Map<String, dynamic>);
     } on SocketException catch (_) {
       throw const SocketException("No Internet Connection");
     } catch (e) {
@@ -92,7 +85,7 @@ class StoryService {
         queryParameters: {
           if (page != null) "page": page,
           if (size != null) "size": size,
-          "location": "1",
+          "location": "0",
         },
       );
       return ListStoryModel.fromJson(response.data as Map<String, dynamic>);
@@ -105,14 +98,14 @@ class StoryService {
 
   Future<DetailStoryModel> getStoryById(String token, String id) async {
     try {
-      var response = await http.get(
-        Uri.parse('$_baseUrl/stories/$id'),
-        headers: {
+      var response = await _dioClient.get(
+        '$_baseUrl/stories/$id',
+        options: Options(headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",
-        },
+        }),
       );
-      return DetailStoryModel.fromRawJson(response.body);
+      return DetailStoryModel.fromJson(response.data as Map<String, dynamic>);
     } on SocketException catch (_) {
       throw const SocketException("No Internet Connection");
     } catch (e) {

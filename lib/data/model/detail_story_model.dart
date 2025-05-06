@@ -1,9 +1,13 @@
-import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
 import 'package:sofi/data/model/general_model.dart';
 import 'package:sofi/data/model/story_model.dart';
 
+part 'detail_story_model.g.dart';
+
+@JsonSerializable()
 class DetailStoryModel extends GeneralModel {
+    @JsonKey(name: "story")
     StoryModel? story;
 
     DetailStoryModel({
@@ -12,11 +16,5 @@ class DetailStoryModel extends GeneralModel {
         this.story,
     });
 
-    factory DetailStoryModel.fromRawJson(String str) => DetailStoryModel.fromJson(json.decode(str));
-
-    factory DetailStoryModel.fromJson(Map<String, dynamic> json) => DetailStoryModel(
-        error: json["error"],
-        message: json["message"],
-        story: json["story"] == null ? null : StoryModel.fromJson(json["story"]),
-    );
+    factory DetailStoryModel.fromJson(Map<String, dynamic> json) => _$DetailStoryModelFromJson(json);
 }
