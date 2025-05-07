@@ -40,12 +40,20 @@ class ListStoryProvider with ChangeNotifier {
       } else if (response.listStory == null || response.listStory!.isEmpty) {
         _state = ListStoryError("No stories found");
       } else {
+        if (pageItems == 1) {
+          _state = ListStorySuccess(response.listStory!);
+        } else {
+          if (pageItems != null) {
+            final currentState = state as ListStorySuccess;
+            final newList = currentState.stories + response.listStory!;
+            _state = ListStorySuccess(newList);
+          }
+        }
         if (response.listStory!.length < sizeItems) {
           pageItems = null;
         } else {
           pageItems = pageItems! + 1;
         }
-        _state = ListStorySuccess(response.listStory!);
       }
 
       notifyListeners();
@@ -56,5 +64,10 @@ class ListStoryProvider with ChangeNotifier {
       _state = ListStoryError(e.toString());
       notifyListeners();
     }
+  }
+
+  void resetPageItems() {
+    pageItems = 1;
+    notifyListeners();
   }
 }

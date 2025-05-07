@@ -84,6 +84,7 @@ class AddStoryScreenState extends State<AddStoryScreen> {
       context
           .read<PageManager>()
           .returnAddStoryResult(data.data.message.toString());
+      context.read<ListStoryProvider>().resetPageItems();
       await context.read<ListStoryProvider>().fetchListStories();
     } else {
       final data = provider.state as AddStoryError;

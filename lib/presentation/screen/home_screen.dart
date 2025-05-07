@@ -35,8 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _listStoryProvider = context.read<ListStoryProvider>();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent) {
-        if(_listStoryProvider.pageItems != null) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent) {
+        if (_listStoryProvider.pageItems != null) {
           _listStoryProvider.fetchListStories();
         }
       }
@@ -77,51 +78,47 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Consumer<ListStoryProvider>(
-            builder: (context, value, child) {
-              if (value.state is ListStoryLoading && value.pageItems == 1) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (value.state is ListStoryError) {
-                return Center(
-                  child: Text(
-                    (value.state as ListStoryError).message,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.red,
-                        ),
-                  ),
-                );
-              } else if (value.state is ListStorySuccess) {
-                final stories = (value.state as ListStorySuccess).stories;
-                return ListView.builder(
-                    controller: _scrollController,
-                    itemBuilder: (context, index) {
-                      if (value.pageItems != null &&
-                          index == stories.length) {
-                        return const Center(
-                            child: CircularProgressIndicator());
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 24.0),
-                        child: StoryItem(
-                          imageUrl: stories[index].photoUrl,
-                          username: stories[index].name,
-                          storyText: stories[index].description,
-                          id: stories[index].id,
-                          toDetailStoryScreen: (String storyId) {
-                            widget.toDetailStoryScreen(storyId);
-                          },
-                        ),
-                      );
-                    },
-                    itemCount:
-                        stories.length + (value.pageItems != null ? 1 : 0),
-                    shrinkWrap: true);
-              }
-              return const SizedBox.shrink();
-            },
-          )),
+      body: Consumer<ListStoryProvider>(
+        builder: (context, value, child) {
+          if (value.state is ListStoryLoading && value.pageItems == 1) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (value.state is ListStoryError) {
+            return Center(
+              child: Text(
+                (value.state as ListStoryError).message,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.red,
+                    ),
+              ),
+            );
+          } else if (value.state is ListStorySuccess) {
+            final stories = (value.state as ListStorySuccess).stories;
+            return ListView.builder(
+                controller: _scrollController,
+                itemBuilder: (context, index) {
+                  if (value.pageItems != null && index == stories.length) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                        bottom: 24.0, right: 16, left: 16),
+                    child: StoryItem(
+                      imageUrl: stories[index].photoUrl,
+                      username: stories[index].name,
+                      storyText: stories[index].description,
+                      id: stories[index].id,
+                      toDetailStoryScreen: (String storyId) {
+                        widget.toDetailStoryScreen(storyId);
+                      },
+                    ),
+                  );
+                },
+                itemCount: stories.length + (value.pageItems != null ? 1 : 0),
+                shrinkWrap: true);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           widget.toAddStoryScreen();
